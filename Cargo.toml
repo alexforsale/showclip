@@ -1,5 +1,6 @@
 [package]
 name = "showclip"
+description = "Send clipboard to notification using xsel and notify-send"
 version = "0.1.0"
 edition = "2024"
 
