@@ -1,15 +1,32 @@
+use std::env;
 use std::process::{Command, Stdio};
 
 fn get_clip() -> String {
-    let xclip = Command::new("xsel")
-        .arg("-b")
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap()
-        .wait_with_output()
-        .expect("Error getting clipboard");
+    let xdg_session_type = match env::var("XDG_SESSION_TYPE") {
+        Ok(value) => value,
+        Err(_) => "".to_string(),
+    }
+    .to_lowercase();
 
-    let output_string = String::from_utf8_lossy(&xclip.stdout);
+    let clipboard_command = match xdg_session_type.as_str() {
+        "x11" => Command::new("xsel")
+            .arg("-b")
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap()
+            .wait_with_output()
+            .expect("Error getting clipboard"),
+        "wayland" => Command::new("wl-paste")
+            .arg("-n")
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap()
+            .wait_with_output()
+            .expect("Error getting clipboard"),
+        &_ => panic!("Clipboard not found"),
+    };
+
+    let output_string = String::from_utf8_lossy(&clipboard_command.stdout);
     return output_string.trim().to_string();
 }
 
