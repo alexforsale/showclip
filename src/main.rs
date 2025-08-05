@@ -23,6 +23,7 @@ fn get_clip() -> String {
             .unwrap()
             .wait_with_output()
             .expect("Error getting clipboard"),
+        "tty" => panic!("You're not running X11 or Wayland"),
         &_ => panic!("Clipboard not found"),
     };
 
